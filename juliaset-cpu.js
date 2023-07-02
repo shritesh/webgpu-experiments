@@ -31,23 +31,20 @@ function julia (x, y) {
   const jx = scale * (dim / 2 - x) / (dim / 2)
   const jy = scale * (dim / 2 - y) / (dim / 2)
 
-  // Complex numbers
+  // Arbitrarily chosen
   const c = [-0.8, 0.156]
   let a = [jx, jy]
 
   for (let i = 0; i < 200; i++) {
     // a = a * a + c
-    const real = a[0] * a[0] - a[1] * a[1]
-    const imag = 2 * a[0] * a[1]
+    const real = a[0] * a[0] - a[1] * a[1] + c[0]
+    const imag = 2 * a[0] * a[1] + c[1]
     a = [real, imag]
 
-    a[0] += c[0]
-    a[1] += c[1]
-
-    const magnitude = Math.sqrt(a[0] * a[0] + a[1] * a[1])
+    const magnitude = real * real + imag * imag
 
     if (magnitude > 1000) {
-      return 0
+      return i / 200
     }
   }
 

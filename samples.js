@@ -3,7 +3,8 @@ const files = [
   // "CUDA by Example: An Introduction to General-Purpose GPU Programming"
   'add.js',
   'parallelsum.js',
-  'juliaset-cpu.js'
+  'juliaset-cpu.js',
+  'juliaset-gpu.js'
 ]
 
 const buttons = document.createElement('div')
