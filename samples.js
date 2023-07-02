@@ -8,6 +8,17 @@ const files = [
 ]
 
 const buttons = document.createElement('div')
+const details = document.createElement('details')
+details.hidden = true
+
+const summary = document.createElement('summary')
+details.appendChild(summary)
+
+const pre = document.createElement('pre')
+const code = document.createElement('code')
+
+pre.appendChild(code)
+details.appendChild(pre)
 
 for (const file of files) {
   const btn = document.createElement('button')
@@ -15,6 +26,10 @@ for (const file of files) {
   btn.onclick = async function (e) {
     e.preventDefault()
     const module = await import(`./${file}`)
+    code.innerText = module.run.toString()
+    summary.innerText = file
+    details.hidden = false
+
     try {
       let content = document.querySelector('#playground-content')
       if (content) {
@@ -34,3 +49,4 @@ for (const file of files) {
 }
 
 document.body.appendChild(buttons)
+document.body.appendChild(details)
