@@ -8,8 +8,32 @@
 </head>
 
 <body>
-    <!-- <script type="module" src="add.js"></script> -->
-    <script type="module" src="parallelsum.js"></script>
+    <div id="list"></div>
+    <script type="module">
+        const examples = ["add.js", "parallelsum.js"];
+
+        const list = document.querySelector("#list");
+
+        for (let file of examples) {
+            let el = document.createElement("button");
+            el.innerText = file;
+            el.onclick = async function (e) {
+                e.preventDefault();
+                let module = await import(`./${file}`);
+                try {
+                    if (document.querySelector("main")) {
+                        document.querySelector("main").remove();
+                    }
+
+                    document.body.appendChild(document.createElement("main"));
+                    await module.run();
+                } catch (e) {
+                    alert(e);
+                }
+            }
+            list.appendChild(el);
+        }
+    </script>
 </body>
 
 </html>

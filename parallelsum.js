@@ -1,4 +1,4 @@
-async function run() {
+export async function run() {
     const adapter = await navigator.gpu?.requestAdapter();
     const device = await adapter?.requestDevice();
 
@@ -86,8 +86,6 @@ async function run() {
     for (let i = 0; i < n; i++) {
         let elem = document.createElement("code");
         elem.innerText = `${a[i]} + ${b[i]} = ${c[i]}\n`;
-        document.body.appendChild(elem);
+        document.querySelector("main").appendChild(elem);
     }
 }
-
-run().catch(e => alert(e))
