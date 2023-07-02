@@ -54,10 +54,10 @@ async function run() {
     device.queue.submit([commandBuffer]);
 
     await resultReadBuffer.mapAsync(GPUMapMode.READ);
-    const result = new Uint32Array(resultReadBuffer.getMappedRange().slice());
+    const result = new Uint32Array(resultReadBuffer.getMappedRange())[0];
     resultReadBuffer.unmap();
 
-    document.body.innerText = `${input[0]} + ${input[1]} = ${result[0]}`
+    document.body.innerText = `${input[0]} + ${input[1]} = ${result}`
 }
 
 
