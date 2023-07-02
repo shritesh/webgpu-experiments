@@ -1,13 +1,13 @@
-export async function run(container) {
-    const adapter = await navigator.gpu?.requestAdapter();
-    const device = await adapter?.requestDevice();
+export async function run () {
+  const adapter = await navigator.gpu?.requestAdapter()
+  const device = await adapter?.requestDevice()
 
-    if (!device) {
-        throw Error("WebGPU not available");
-    }
+  if (!device) {
+    throw Error('WebGPU not available')
+  }
 
-    const module = device.createShaderModule({
-        code: `
+  const module = device.createShaderModule({
+    code: `
         @group(0) @binding(0) var<storage, read> a: array<i32>;
         @group(0) @binding(1) var<storage, read> b: array<i32>;
         @group(0) @binding(2) var<storage, read_write> c: array<i32>;
@@ -17,75 +17,78 @@ export async function run(container) {
             let i = id.x;
             c[i] = a[i] + b[i];
         }
-        `,
-    });
+        `
+  })
 
-    const pipeline = device.createComputePipeline({
-        layout: "auto",
-        compute: {
-            module, entryPoint: "add",
-        },
-    });
-
-    const n = 10;
-    const byteLength = Int32Array.BYTES_PER_ELEMENT * n;
-    let a = new Int32Array(n);
-    let b = new Int32Array(n);
-    for (let i = 0; i < n; i++) {
-        a[i] = -i;
-        b[i] = i * i;
+  const pipeline = device.createComputePipeline({
+    layout: 'auto',
+    compute: {
+      module, entryPoint: 'add'
     }
+  })
 
-    const aBuffer = device.createBuffer({
-        size: byteLength,
-        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
-    });
-    device.queue.writeBuffer(aBuffer, 0, a);
+  const n = 10
+  const byteLength = Int32Array.BYTES_PER_ELEMENT * n
+  const a = new Int32Array(n)
+  const b = new Int32Array(n)
+  for (let i = 0; i < n; i++) {
+    a[i] = -i
+    b[i] = i * i
+  }
 
-    const bBuffer = device.createBuffer({
-        size: byteLength,
-        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
-    });
-    device.queue.writeBuffer(bBuffer, 0, b);
+  const aBuffer = device.createBuffer({
+    size: byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+  })
+  device.queue.writeBuffer(aBuffer, 0, a)
 
-    const cBuffer = device.createBuffer({
-        size: byteLength,
-        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
-    });
+  const bBuffer = device.createBuffer({
+    size: byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+  })
+  device.queue.writeBuffer(bBuffer, 0, b)
 
-    const resultBuffer = device.createBuffer({
-        size: byteLength,
-        usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
-    });
+  const cBuffer = device.createBuffer({
+    size: byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
+  })
 
-    let bindGroup = device.createBindGroup({
-        layout: pipeline.getBindGroupLayout(0),
-        entries: [
-            { binding: 0, resource: { buffer: aBuffer } },
-            { binding: 1, resource: { buffer: bBuffer } },
-            { binding: 2, resource: { buffer: cBuffer } },
-        ],
-    });
+  const resultBuffer = device.createBuffer({
+    size: byteLength,
+    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST
+  })
 
-    let encoder = device.createCommandEncoder();
-    let pass = encoder.beginComputePass();
-    pass.setPipeline(pipeline);
-    pass.setBindGroup(0, bindGroup);
-    pass.dispatchWorkgroups(n);
-    pass.end();
+  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: aBuffer } },
+      { binding: 1, resource: { buffer: bBuffer } },
+      { binding: 2, resource: { buffer: cBuffer } }
+    ]
+  })
 
-    encoder.copyBufferToBuffer(cBuffer, 0, resultBuffer, 0, byteLength);
+  const encoder = device.createCommandEncoder()
+  const pass = encoder.beginComputePass()
+  pass.setPipeline(pipeline)
+  pass.setBindGroup(0, bindGroup)
+  pass.dispatchWorkgroups(n)
+  pass.end()
 
-    const commandBuffer = encoder.finish();
-    device.queue.submit([commandBuffer]);
+  encoder.copyBufferToBuffer(cBuffer, 0, resultBuffer, 0, byteLength)
 
-    await resultBuffer.mapAsync(GPUMapMode.READ);
-    const c = new Int32Array(resultBuffer.getMappedRange().slice());
-    resultBuffer.unmap();
+  const commandBuffer = encoder.finish()
+  device.queue.submit([commandBuffer])
 
-    for (let i = 0; i < n; i++) {
-        let elem = document.createElement("code");
-        elem.innerText = `${a[i]} + ${b[i]} = ${c[i]}\n`;
-        container.appendChild(elem);
-    }
+  await resultBuffer.mapAsync(GPUMapMode.READ)
+  const c = new Int32Array(resultBuffer.getMappedRange().slice())
+  resultBuffer.unmap()
+
+  const container = document.createElement('ul')
+  for (let i = 0; i < n; i++) {
+    const elem = document.createElement('li')
+    elem.innerText = `${a[i]} + ${b[i]} = ${c[i]}\n`
+    container.appendChild(elem)
+  }
+
+  return container
 }
