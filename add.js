@@ -1,4 +1,4 @@
-export async function run() {
+export async function run(container) {
     const adapter = await navigator.gpu?.requestAdapter();
     const device = await adapter?.requestDevice();
 
@@ -57,5 +57,5 @@ export async function run() {
     const result = new Uint32Array(resultReadBuffer.getMappedRange())[0];
     resultReadBuffer.unmap();
 
-    document.querySelector("main").innerText = `${input[0]} + ${input[1]} = ${result}`
+    container.innerText = `${input[0]} + ${input[1]} = ${result}`
 }
