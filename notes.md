@@ -6,7 +6,7 @@
 
 - `<<<numBlocks, threadsPerBlocks>>>` = `<<<dispatchWorkgroups(...), @workgroup_size(...)>>>` = <<<dispatch size, workgroup size>>>
 
-- `blockIdx` = `workgroup_id` = workgroup id
-- `gridDim` = `num_workgroups` = dispatch size
-- `threadIdx` = `local_invocation_id` = local invocation id
-- `blockDim` = `@workgroup_size(...)` = grid size
+- `threadIdx` = `local_invocation_id` = current invocation id in the workgroup
+- `blockDim` = `@workgroup_size(...)` = number/size of invocations in a workgroup
+- `blockIdx` = `workgroup_id` = current workgroup id in the dispatch
+- `gridDim` = `num_workgroups` = number/size of workgroups dispatched
