@@ -22,14 +22,15 @@ export async function run () {
     @group(0) @binding(0) var<uniform> ticks: u32;
     @group(0) @binding(1) var<storage, read_write> data: array<u32>;
 
-    const wsize = vec2(16, 16);
-    @compute @workgroup_size(wsize[0], wsize[1])
+    const wsize = vec2<u32>(16, 16);
+
+    @compute @workgroup_size(wsize.x, wsize.y)
     fn ripple(@builtin(local_invocation_id) id: vec3<u32>,
               @builtin(workgroup_id) wid: vec3<u32>,
               @builtin(num_workgroups) dsize: vec3<u32>) {
-      let x = id.x + wid.x * wsize[0];
-      let y = id.y + wid.y * wsize[1];
-      let offset = x + y * wsize[0] * dsize.x;
+      let x = id.x + wid.x * wsize.x;
+      let y = id.y + wid.y * wsize.y;
+      let offset = x + y * wsize.x * dsize.x;
         
       let fx = f32(x) - f32(dim)/2.0;
       let fy = f32(y) - f32(dim)/2.0;
