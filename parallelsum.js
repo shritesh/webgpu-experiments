@@ -83,12 +83,12 @@ export async function run () {
   const c = new Int32Array(resultBuffer.getMappedRange().slice())
   resultBuffer.unmap()
 
-  const container = document.createElement('ul')
+  let text = ''
   for (let i = 0; i < n; i++) {
-    const elem = document.createElement('li')
-    elem.innerText = `${a[i]} + ${b[i]} = ${c[i]}\n`
-    container.appendChild(elem)
+    text += `${a[i]} + ${b[i]} = ${c[i]}\n`
   }
 
+  const container = document.createElement('pre')
+  container.innerText = text
   return container
 }

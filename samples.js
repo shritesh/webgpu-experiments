@@ -4,7 +4,9 @@ const files = [
   'add.js',
   'parallelsum.js',
   'juliaset-cpu.js',
-  'juliaset-gpu.js'
+  'juliaset-gpu.js',
+  'histogram-cpu.js',
+  'histogram-gpu.js'
 ]
 
 const buttons = document.createElement('div')
