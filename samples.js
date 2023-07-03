@@ -7,6 +7,7 @@ const files = [
   'juliaset-gpu.js',
   'parallelsum-invocations.js',
   'parallelsum-both.js',
+  'ripple.js',
   'histogram-cpu.js',
   'histogram-gpu.js'
 ]
