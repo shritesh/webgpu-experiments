@@ -11,7 +11,7 @@ export async function run () {
   canvas.width = dim
   canvas.height = dim
 
-  // TODO: create render pipeline instead
+  // TODO: use render pipeline instead
   const ctx = canvas.getContext('2d')
   const byteLength = dim * dim * Uint8ClampedArray.BYTES_PER_ELEMENT * 4
 
@@ -22,8 +22,8 @@ export async function run () {
       @group(0) @binding(0) var<storage, read_write> data: array<u32>;
 
       @compute @workgroup_size(1)
-      fn kernel(@builtin(global_invocation_id) id: vec3<u32>) {
-        let idx = id.x + id.y * dim;
+      fn kernel(@builtin(workgroup_id) id: vec3<u32>, @builtin(num_workgroups) grid: vec3<u32>) {
+        let idx = id.x + id.y * grid.x;
 
         let value = julia(id.x, id.y);
         let color = vec4(value, 0.0, 0.0, 1.0);
