@@ -2,9 +2,11 @@
 const files = [
   // "CUDA by Example: An Introduction to General-Purpose GPU Programming"
   'add.js',
-  'parallelsum.js',
+  'parallelsum-workgroups.js',
   'juliaset-cpu.js',
   'juliaset-gpu.js',
+  'parallelsum-invocations.js',
+  'parallelsum-both.js',
   'histogram-cpu.js',
   'histogram-gpu.js'
 ]
