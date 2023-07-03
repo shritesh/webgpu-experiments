@@ -28,8 +28,10 @@ for (const file of files) {
   btn.onclick = async function (e) {
     e.preventDefault()
     const module = await import(`./${file}`)
-    code.innerText = module.run.toString()
+    const req = await fetch(`./${file}`)
+    const src = await req.text()
     summary.innerText = file
+    code.innerText = src
     details.hidden = false
 
     try {
