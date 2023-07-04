@@ -1,20 +1,5 @@
-const experiments = {
-  experiments: ['compute-render.js'],
-  'cuda-by-example': [
-    'add.js',
-    'parallelsum-workgroups.js',
-    'juliaset-cpu.js',
-    'juliaset-gpu.js',
-    'parallelsum-invocations.js',
-    'parallelsum-both.js',
-    'ripple.js',
-    'dotproduct.js',
-    'sharedbitmap.js',
-    'histogram-cpu.js',
-    'histogram-gpu.js'
-  ],
-  fundamentals: ['render.js']
-}
+const eReq = await fetch('./experiments.json')
+const experiments = await eReq.json()
 
 const details = document.createElement('details')
 details.hidden = true
