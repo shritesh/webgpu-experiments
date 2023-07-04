@@ -9,6 +9,7 @@ const experiments = {
     'parallelsum-both.js',
     'ripple.js',
     'dotproduct.js',
+    'sharedbitmap.js',
     'histogram-cpu.js',
     'histogram-gpu.js'
   ],
