@@ -21,13 +21,11 @@ export async function run () {
       @group(0) @binding(0) var<storage, read_write> data: array<u32>;
 
       @compute @workgroup_size(1)
-      fn kernel(@builtin(workgroup_id) id: vec3<u32>, @builtin(num_workgroups) grid: vec3<u32>) {
-        let idx = id.x + id.y * grid.x;
-
+      fn kernel(@builtin(global_invocation_id) id: vec3<u32>) {
         let value = julia(id.x, id.y);
         let color = vec4(value, 0.0, 0.0, 1.0);
 
-        data[idx] = pack4x8unorm(color);
+        data[id.x + id.y * dim] = pack4x8unorm(color);
       }
 
       fn julia(x: u32, y: u32) -> f32 {
