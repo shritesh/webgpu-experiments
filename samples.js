@@ -1,18 +1,18 @@
-// TODO: hash navigation
-const files = [
-  // "CUDA by Example: An Introduction to General-Purpose GPU Programming"
-  'add.js',
-  'parallelsum-workgroups.js',
-  'juliaset-cpu.js',
-  'juliaset-gpu.js',
-  'parallelsum-invocations.js',
-  'parallelsum-both.js',
-  'ripple.js',
-  'histogram-cpu.js',
-  'histogram-gpu.js'
-]
+const samples = {
+  'cuda-by-example': [
+    'add.js',
+    'parallelsum-workgroups.js',
+    'juliaset-cpu.js',
+    'juliaset-gpu.js',
+    'parallelsum-invocations.js',
+    'parallelsum-both.js',
+    'ripple.js',
+    'histogram-cpu.js',
+    'histogram-gpu.js'
+  ],
+  fundamentals: ['render.js']
+}
 
-const buttons = document.createElement('div')
 const details = document.createElement('details')
 details.hidden = true
 
@@ -25,35 +25,40 @@ const code = document.createElement('code')
 pre.appendChild(code)
 details.appendChild(pre)
 
-for (const file of files) {
-  const btn = document.createElement('button')
-  btn.innerText = file
-  btn.onclick = async function (e) {
-    e.preventDefault()
-    const module = await import(`./${file}`)
-    const req = await fetch(`./${file}`)
-    const src = await req.text()
-    summary.innerText = file
-    code.innerText = src
-    details.hidden = false
+for (const dir in samples) {
+  const buttons = document.createElement('div')
+  buttons.innerText = dir
+  for (const sample of samples[dir]) {
+    const file = `./${dir}/${sample}`
+    const btn = document.createElement('button')
+    btn.innerText = sample
+    btn.onclick = async function (e) {
+      e.preventDefault()
+      const module = await import(file)
+      const req = await fetch(file)
+      const src = await req.text()
+      summary.innerText = file
+      code.innerText = src
+      details.hidden = false
 
-    try {
-      let content = document.querySelector('#playground-content')
-      if (content) {
-        content.remove()
+      try {
+        let content = document.querySelector('#playground-content')
+        if (content) {
+          content.remove()
+        }
+
+        content = await module.run()
+        content.id = 'playground-content'
+
+        document.body.appendChild(content)
+      } catch (e) {
+        console.error(e)
+        alert(e)
       }
-
-      content = await module.run()
-      content.id = 'playground-content'
-
-      document.body.appendChild(content)
-    } catch (e) {
-      console.error(e)
-      alert(e)
     }
+    buttons.appendChild(btn)
+    document.body.appendChild(buttons)
   }
-  buttons.appendChild(btn)
 }
 
-document.body.appendChild(buttons)
 document.body.appendChild(details)

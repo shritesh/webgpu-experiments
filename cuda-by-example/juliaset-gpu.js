@@ -11,7 +11,6 @@ export async function run () {
   canvas.width = dim
   canvas.height = dim
 
-  // TODO: use render pipeline instead
   const ctx = canvas.getContext('2d')
   const byteLength = dim * dim * Uint8ClampedArray.BYTES_PER_ELEMENT * 4
 

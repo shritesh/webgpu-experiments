@@ -102,7 +102,7 @@ export async function run () {
     requestAnimationFrame(render)
   }
 
-  requestAnimationFrame(render)
+  render()
 
   return canvas
 }
