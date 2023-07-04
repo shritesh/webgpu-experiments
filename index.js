@@ -10,6 +10,7 @@ const experiments = {
     'histogram-cpu.js',
     'histogram-gpu.js'
   ],
+  experiments: ['compute-render.js'],
   fundamentals: ['render.js']
 }
 
