@@ -8,6 +8,7 @@ const experiments = {
     'parallelsum-invocations.js',
     'parallelsum-both.js',
     'ripple.js',
+    'dotproduct.js',
     'histogram-cpu.js',
     'histogram-gpu.js'
   ],
