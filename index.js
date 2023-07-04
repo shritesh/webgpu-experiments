@@ -1,4 +1,5 @@
 const experiments = {
+  experiments: ['compute-render.js'],
   'cuda-by-example': [
     'add.js',
     'parallelsum-workgroups.js',
@@ -10,7 +11,6 @@ const experiments = {
     'histogram-cpu.js',
     'histogram-gpu.js'
   ],
-  experiments: ['compute-render.js'],
   fundamentals: ['render.js']
 }
 
