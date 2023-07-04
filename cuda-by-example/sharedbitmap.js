@@ -27,17 +27,14 @@ export async function run () {
       var<workgroup> memory: array<array<f32, 16>, 16>;
   
       @compute @workgroup_size(16, 16)
-      fn draw(@builtin(local_invocation_id) iid: vec3<u32>, @builtin(workgroup_id) wid: vec3<u32>, @builtin(num_workgroups) dsize: vec3<u32>) {
-        let x = iid.x + wid.x * 16;
-        let y = iid.y + wid.y * 16;
-
+      fn draw(@builtin(global_invocation_id) id: vec3<u32>, @builtin(local_invocation_id) iid: vec3<u32>) {
         const pi = 3.1415926535897932f;
         const period = 128f;
 
-        memory[iid.x][iid.y] = (sin(f32(x) * 2f * pi / period) + 1f) * (sin(f32(y) * 2f * pi / period) + 1f) / 4f;
+        memory[iid.x][iid.y] = (sin(f32(id.x) * 2f * pi / period) + 1f) * (sin(f32(id.y) * 2f * pi / period) + 1f) / 4f;
         workgroupBarrier();
 
-        textureStore(texture, vec2(x, y), vec4(0f, memory[15 - iid.x][15 - iid.y], 0f, 1.0f));
+        textureStore(texture, id.xy, vec4(0f, memory[15 - iid.x][15 - iid.y], 0f, 1.0f));
       }
       `
   })
