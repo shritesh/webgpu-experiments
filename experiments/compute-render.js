@@ -22,9 +22,9 @@ export async function run () {
     code: `
     @group(0) @binding(0) var texture: texture_storage_2d<bgra8unorm, write>;
 
-    @compute @workgroup_size(1)
-    fn draw(@builtin(workgroup_id) id: vec3<u32>) {
-      let color = vec2f(id.xy) / vec2f(1000.0, 1000.0);
+    @compute @workgroup_size(64)
+    fn draw(@builtin(global_invocation_id) id: vec3<u32>) {
+      let color = vec2f(id.xy) / vec2f(textureDimensions(texture).xy);
       textureStore(texture, id.xy, vec4(color, 0.0f, 1.0f));
     }
     `
