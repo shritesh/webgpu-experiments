@@ -1,4 +1,4 @@
-const samples = {
+const experiments = {
   'cuda-by-example': [
     'add.js',
     'parallelsum-workgroups.js',
@@ -25,10 +25,10 @@ const code = document.createElement('code')
 pre.appendChild(code)
 details.appendChild(pre)
 
-for (const dir in samples) {
+for (const dir in experiments) {
   const buttons = document.createElement('div')
   buttons.innerText = dir
-  for (const sample of samples[dir]) {
+  for (const sample of experiments[dir]) {
     const file = `./${dir}/${sample}`
     const btn = document.createElement('button')
     btn.innerText = sample
@@ -42,13 +42,13 @@ for (const dir in samples) {
       details.hidden = false
 
       try {
-        let content = document.querySelector('#playground-content')
+        let content = document.querySelector('#experiment')
         if (content) {
           content.remove()
         }
 
         content = await module.run()
-        content.id = 'playground-content'
+        content.id = 'experiment'
 
         document.body.appendChild(content)
       } catch (e) {
