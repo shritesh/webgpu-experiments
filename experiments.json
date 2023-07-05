@@ -1,6 +1,7 @@
 {
     "experiments": [
-        "compute-render.js",
+        "compute-render-rgba.js",
+        "compute-render-bgra.js",
         "timestamp-query.js"
     ],
     "cuda-by-example": [
@@ -13,6 +14,8 @@
         "ripple.js",
         "dotproduct.js",
         "sharedbitmap.js",
+        "raytracing-storage.js",
+        "raytracing-uniform.js",
         "histogram-cpu.js",
         "histogram-gpu.js"
     ],

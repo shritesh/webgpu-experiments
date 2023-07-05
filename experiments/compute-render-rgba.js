@@ -1,7 +1,7 @@
 export async function run () {
   const adapter = await navigator.gpu?.requestAdapter()
 
-  const device = await adapter?.requestDevice({ requiredFeatures: ['bgra8unorm-storage'] })
+  const device = await adapter?.requestDevice()
   if (!device) {
     throw Error('WebGPU not available')
   }
@@ -11,6 +11,11 @@ export async function run () {
   canvas.height = 1000
 
   const format = navigator.gpu.getPreferredCanvasFormat()
+
+  if (format !== 'rgba8unorm' && format !== 'rgba8unorm-srgb') {
+    throw Error('Canvas preferred format is not rgba')
+  }
+
   const ctx = canvas.getContext('webgpu')
   ctx.configure({
     device,
@@ -20,7 +25,7 @@ export async function run () {
 
   const module = device.createShaderModule({
     code: `
-    @group(0) @binding(0) var texture: texture_storage_2d<bgra8unorm, write>;
+    @group(0) @binding(0) var texture: texture_storage_2d<rgba8unorm, write>;
 
     @compute @workgroup_size(8, 8)
     fn draw(@builtin(global_invocation_id) id: vec3<u32>) {
