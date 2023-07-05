@@ -1,7 +1,7 @@
 {
     "experiments": [
-        "compute-render-rgba.js",
         "compute-render-bgra.js",
+        "compute-render-rgba.js",
         "timestamp-query.js"
     ],
     "cuda-by-example": [

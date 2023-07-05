@@ -82,15 +82,25 @@ export async function run () {
     compute: { module, entryPoint: 'raytrace', constants: { dim } }
   })
 
+  // JS doesn't have a seedable rng.
+  // https://observablehq.com/@fil/linear-congruential-generator
+  const LCG = function (seed) {
+    const a = 1664525
+    const c = 1013904223
+    const m = 4294967296 // 2^32
+    let s = Math.abs(a * +seed) || 1
+    return () => (s = (a * s + c) % m) / m
+  }
+  const rand = LCG()
   const spheres = new Float32Array(count * 7) // 7 fields
   for (let i = 0; i < count; i++) {
-    spheres[i * 7 + 0] = Math.random() // r
-    spheres[i * 7 + 1] = Math.random() // g
-    spheres[i * 7 + 2] = Math.random() // b
-    spheres[i * 7 + 3] = 100 * Math.random() + 20 // radius
-    spheres[i * 7 + 4] = 1000 * Math.random() - 500 // x
-    spheres[i * 7 + 5] = 1000 * Math.random() - 500 // y
-    spheres[i * 7 + 6] = 1000 * Math.random() - 500 // z
+    spheres[i * 7 + 0] = rand() // r
+    spheres[i * 7 + 1] = rand() // g
+    spheres[i * 7 + 2] = rand() // b
+    spheres[i * 7 + 3] = 100 * rand() + 20 // radius
+    spheres[i * 7 + 4] = 1000 * rand() - 500 // x
+    spheres[i * 7 + 5] = 1000 * rand() - 500 // y
+    spheres[i * 7 + 6] = 1000 * rand() - 500 // z
   }
 
   const sphereBuffer = device.createBuffer({
