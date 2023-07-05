@@ -4,8 +4,7 @@ const count = 20
 export async function run () {
   const adapter = await navigator.gpu?.requestAdapter()
 
-  const requiredFeatures = ['bgra8unorm-storage']
-
+  const requiredFeatures = []
   const hasTimestampQuery = adapter.features.has('timestamp-query')
   if (hasTimestampQuery) {
     requiredFeatures.push('timestamp-query')
