@@ -1,4 +1,4 @@
-// Because of relaxed memory ordering this doesn't work
+// Because of relaxed memory ordering this may not work as expected.
 const n = 33 * 1024
 const wsize = 256
 const dsize = Math.min(32, Math.trunc((n + wsize - 1) / wsize))

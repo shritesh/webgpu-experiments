@@ -3,7 +3,7 @@
 - `uniform` memory has to be 16-byte aligned.
 - Only `storage` memory can have runtime-defined array length.
 - `Atomic` only supports `u32` and `i32`.
-- `Atomic` memory ordering is relaxed, so it can't be used to build a mutex for `f32`.
+- `Atomic` memory ordering is relaxed, so it can't reliably be used to build a mutex.
 - Enable `timestamp-query` feature in Chrome with `--disable-dawn-features=disallow_unsafe_apis` command-line flag.
 
 ## CUDA to WebGPU
