@@ -16,6 +16,7 @@
         "sharedbitmap.js",
         "raytracing-storage.js",
         "raytracing-uniform.js",
+        "heat-transfer.js",
         "histogram-cpu.js",
         "histogram-gpu.js",
         "dotproduct-mutex.js"
