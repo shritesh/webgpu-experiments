@@ -6,11 +6,10 @@ export async function run () {
     throw Error('WebGPU not available')
   }
 
-  const request = await fetch('./test.txt')
+  const request = await fetch('./sherlock.txt')
   let buffer = await request.arrayBuffer()
 
   // Pad right with 0 to make it a multiple of 4 bytes = 32 bits
-  // We skip counting 0 (null byte)
   const remainder = buffer.byteLength % 4
   if (remainder !== 0) {
     const newBuffer = new ArrayBuffer(buffer.byteLength + 4 - remainder)
@@ -24,14 +23,26 @@ export async function run () {
         @group(0) @binding(0) var<storage> data: array<u32>;
         @group(0) @binding(1) var<storage, read_write> output: array<atomic<u32>, 256>;
 
-        @compute @workgroup_size(1)
-        fn histogram(@builtin(global_invocation_id) id: vec3<u32>) {
-          let bytes = data[id.x];
+        var<workgroup> temp: array<atomic<u32>, 256>;
 
-          atomicAdd(&output[bytes & 0xff], 1);
-          atomicAdd(&output[(bytes & 0xff00) >> 8], 1);
-          atomicAdd(&output[(bytes & 0xff0000) >> 16], 1);
-          atomicAdd(&output[(bytes & 0xff000000) >> 24], 1);
+        @compute @workgroup_size(256)
+        fn histogram(@builtin(local_invocation_id) iid: vec3<u32>, @builtin(workgroup_id) wid: vec3<u32>, @builtin(num_workgroups) dsize: vec3<u32>) {
+          var i = iid.x + wid.x * 256;
+          let offset = 256 * dsize.x;
+
+          while (i < arrayLength(&data)) {
+            let bytes = data[i];
+            atomicAdd(&temp[bytes & 0xff], 1);
+            atomicAdd(&temp[(bytes & 0xff00) >> 8], 1);
+            atomicAdd(&temp[(bytes & 0xff0000) >> 16], 1);
+            atomicAdd(&temp[(bytes & 0xff000000) >> 24], 1);
+
+            i += offset;
+          }
+
+          workgroupBarrier();
+
+          atomicAdd(&output[iid.x], atomicLoad(&temp[iid.x]));
         }
         `
   })
@@ -69,7 +80,7 @@ export async function run () {
   const pass = encoder.beginComputePass()
   pass.setPipeline(pipeline)
   pass.setBindGroup(0, bindGroup)
-  pass.dispatchWorkgroups(buffer.byteLength / 4)
+  pass.dispatchWorkgroups(32)
   pass.end()
 
   encoder.copyBufferToBuffer(workBuffer, 0, resultBuffer, 0, 256 * 4)
@@ -80,11 +91,16 @@ export async function run () {
   await resultBuffer.mapAsync(GPUMapMode.READ)
   const histo = new Uint32Array(resultBuffer.getMappedRange())
 
+  const counts = {}
   // skip 0
-  const histoSum = histo.slice(1).reduce((a, b) => a + b, 0)
+  for (let i = 1; i < 256; i++) {
+    if (histo[i] !== 0) {
+      counts[String.fromCharCode(i)] = histo[i]
+    }
+  }
   resultBuffer.unmap()
 
-  const el = document.createElement('code')
-  el.innerText = `Histogram Sum: ${histoSum}`
+  const el = document.createElement('pre')
+  el.innerText = JSON.stringify(counts, null, 2)
   return el
 }
