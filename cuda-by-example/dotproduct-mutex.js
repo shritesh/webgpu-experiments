@@ -1,3 +1,4 @@
+// Because of relaxed memory ordering this doesn't work
 const n = 33 * 1024
 const wsize = 256
 const dsize = Math.min(32, Math.trunc((n + wsize - 1) / wsize))
@@ -19,7 +20,8 @@ export async function run () {
     var<workgroup> cache: array<f32, wsize>;
     @group(0) @binding(0) var<storage> a: array<f32>;
     @group(0) @binding(1) var<storage> b: array<f32>;
-    @group(0) @binding(2) var<storage, read_write> c: array<f32>;
+    @group(0) @binding(2) var<storage, read_write> result: f32;
+    @group(0) @binding(3) var<storage, read_write> mutex: atomic<u32>;
 
     @compute @workgroup_size(wsize) 
     fn dot(@builtin(local_invocation_id) iid: vec3<u32>, @builtin(workgroup_id) wid: vec3<u32>, @builtin(num_workgroups) dsize: vec3<u32>) {
@@ -47,9 +49,16 @@ export async function run () {
         }
 
         if (cache_id == 0) {
-          c[wid.x] = cache[0];
+            loop {
+                let exc = atomicCompareExchangeWeak(&mutex, 0, 1);
+                if (exc.old_value == 0 && exc.exchanged) {
+                    break;
+                }
+            }
+            result += cache[0];
+            atomicStore(&mutex, 0);
         }
-      }
+    }
     `
   })
 
@@ -80,13 +89,18 @@ export async function run () {
   }
   bBuffer.unmap()
 
-  const partialcBuffer = device.createBuffer({
-    size: dsize * sizeofF32,
+  const cBuffer = device.createBuffer({
+    size: sizeofF32,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
   })
 
+  const mutexBuffer = device.createBuffer({
+    size: Uint32Array.BYTES_PER_ELEMENT,
+    usage: GPUBufferUsage.STORAGE
+  })
+
   const resultBuffer = device.createBuffer({
-    size: dsize * sizeofF32,
+    size: sizeofF32,
     usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST
   })
 
@@ -95,7 +109,8 @@ export async function run () {
     entries: [
       { binding: 0, resource: { buffer: aBuffer } },
       { binding: 1, resource: { buffer: bBuffer } },
-      { binding: 2, resource: { buffer: partialcBuffer } }
+      { binding: 2, resource: { buffer: cBuffer } },
+      { binding: 3, resource: { buffer: mutexBuffer } }
     ]
   })
 
@@ -106,13 +121,13 @@ export async function run () {
   pass.dispatchWorkgroups(dsize)
   pass.end()
 
-  encoder.copyBufferToBuffer(partialcBuffer, 0, resultBuffer, 0, sizeofF32 * dsize)
+  encoder.copyBufferToBuffer(cBuffer, 0, resultBuffer, 0, sizeofF32)
 
   const commandBuffer = encoder.finish()
   device.queue.submit([commandBuffer])
 
   await resultBuffer.mapAsync(GPUMapMode.READ)
-  const gpuResult = (new Float32Array(resultBuffer.getMappedRange()).reduce((a, b) => a + b, 0))
+  const gpuResult = new Float32Array(resultBuffer.getMappedRange())[0]
   resultBuffer.unmap()
 
   let cpuResult = 0

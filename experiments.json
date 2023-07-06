@@ -17,7 +17,8 @@
         "raytracing-storage.js",
         "raytracing-uniform.js",
         "histogram-cpu.js",
-        "histogram-gpu.js"
+        "histogram-gpu.js",
+        "dotproduct-mutex.js"
     ],
     "fundamentals": [
         "render.js"
